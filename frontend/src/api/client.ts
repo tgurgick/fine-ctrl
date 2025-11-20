@@ -74,7 +74,7 @@ class APIClient {
   }
 
   async login(email: string, password: string) {
-    const response = await this.client.post('/api/auth/login', {
+    const response = await this.client.post('/api/v1/auth/login', {
       email,
       password,
     });
@@ -90,7 +90,7 @@ class APIClient {
       throw new Error('No refresh token available');
     }
 
-    const response = await this.client.post('/api/auth/refresh', {
+    const response = await this.client.post('/api/v1/auth/refresh', {
       refresh_token: this.refreshToken,
     });
 

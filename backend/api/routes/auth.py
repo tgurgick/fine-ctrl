@@ -7,6 +7,8 @@ from backend.schemas.auth import UserRegister, UserLogin, Token, TokenRefresh, A
 from backend.schemas.user import UserResponse
 from backend.services.auth import auth_service
 from backend.middleware.rate_limiter import limiter
+from backend.api.deps import get_current_user
+from backend.models import User
 
 router = APIRouter()
 
@@ -95,3 +97,22 @@ async def logout():
     # For stateless JWT, no server-side action needed
     # Future: Could implement token blacklist if required
     return
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_info(
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get current authenticated user's profile.
+
+    Args:
+        current_user: Current authenticated user from JWT token
+
+    Returns:
+        User profile information
+
+    Raises:
+        HTTPException: 401 if not authenticated
+    """
+    return current_user

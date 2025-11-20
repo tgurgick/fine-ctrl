@@ -27,7 +27,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (apiClient.isAuthenticated()) {
         try {
           // Fetch user profile
-          const userData = await apiClient.get<User>('/api/auth/me');
+          const userData = await apiClient.get<User>('/api/v1/auth/me');
           setUser(userData);
         } catch (error) {
           console.error('Failed to fetch user:', error);
@@ -41,8 +41,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await apiClient.login(email, password);
-    setUser(response.user);
+    await apiClient.login(email, password);
+    // Fetch user profile after login
+    const userData = await apiClient.get<User>('/api/v1/auth/me');
+    setUser(userData);
   };
 
   const logout = () => {
