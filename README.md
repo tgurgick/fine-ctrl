@@ -1,6 +1,21 @@
+<div align="center">
+
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="url(#logo-gradient)"/>
+  <path d="M45 25v45h30V25M60 70v45" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
+
 # Fine-Tune Platform
 
 > Democratizing domain expertise capture through simplified LLM fine-tuning
+
+</div>
 
 ## Vision
 
