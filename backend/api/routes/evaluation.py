@@ -9,17 +9,19 @@ from backend.api.deps import get_current_active_user
 from backend.models import User, ModelVersion
 from backend.schemas.evaluation import (
     EvaluationRequest,
-    EvaluationResponse,
+    EvaluationResult,
     FeedbackCreate,
     FeedbackResponse,
     FeedbackAnalysis,
+    SampleSelectionRequest,
+    SampleSelectionResponse,
 )
 from backend.middleware.rate_limiter import limiter
 
 router = APIRouter()
 
 
-@router.post("/evaluate", response_model=EvaluationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/evaluate", response_model=EvaluationResult, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def evaluate_model(
     request: Request,
@@ -180,4 +182,45 @@ async def analyze_feedback(
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Feedback analysis not yet implemented (WP-5)",
+    )
+
+
+@router.post("/samples", response_model=SampleSelectionResponse)
+@limiter.limit("10/minute")
+async def select_feedback_samples(
+    request: Request,
+    selection_request: SampleSelectionRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Select diverse samples for user feedback.
+
+    **Authentication**: Required
+    **Authorization**: Must own the model version
+    **Rate Limit**: 10 requests per minute
+
+    **Note**: This endpoint is a placeholder for WP-5 (Evaluation Service).
+
+    Selects diverse evaluation examples for the user to provide feedback on.
+    Uses various strategies (diverse, uncertain, balanced) to pick representative samples.
+    """
+    # Verify model version ownership
+    model = db.query(ModelVersion).filter(
+        ModelVersion.id == selection_request.model_version_id
+    ).first()
+    if not model:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Model version not found",
+        )
+    if model.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resource not found or access denied",
+        )
+
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Sample selection not yet implemented (WP-5)",
     )
