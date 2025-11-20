@@ -18,7 +18,7 @@ export const LoginPage: React.FC = () => {
     try {
       await login(email, password);
       showToast('Welcome back!', 'success');
-      navigate('/tasks');
+      navigate('/dashboard');
     } catch (error: any) {
       showToast(
         error.response?.data?.message || 'Invalid credentials. Please try again.',

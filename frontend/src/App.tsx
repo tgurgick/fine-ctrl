@@ -5,6 +5,7 @@ import { ErrorBoundary, ToastProvider, Layout, ProtectedRoute } from './componen
 import {
   LoginPage,
   SignupPage,
+  DashboardPage,
   TaskCreatePage,
   DataEditorPage,
   TrainingDashboardPage,
@@ -32,6 +33,14 @@ function App() {
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path="/tasks/new"
                     element={
@@ -72,8 +81,8 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/" element={<Navigate to="/tasks/new" replace />} />
-                  <Route path="*" element={<Navigate to="/tasks/new" replace />} />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </Layout>
             </ToastProvider>

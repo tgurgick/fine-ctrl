@@ -31,7 +31,7 @@ export const SignupPage: React.FC = () => {
     try {
       await register(email, password);
       showToast('Account created successfully! Welcome!', 'success');
-      navigate('/tasks');
+      navigate('/dashboard');
     } catch (error: any) {
       showToast(
         error.response?.data?.message || 'Failed to create account. Please try again.',
