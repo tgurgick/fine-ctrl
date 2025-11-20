@@ -7,6 +7,7 @@ from backend.services.interfaces import (
     IDeploymentService,
     IAPIKeyService,
 )
+from backend.services.training import TrainingService
 
 __all__ = [
     "IAuthService",
@@ -15,4 +16,5 @@ __all__ = [
     "ITrainingService",
     "IDeploymentService",
     "IAPIKeyService",
+    "TrainingService",
 ]
