@@ -479,3 +479,7 @@ class TrainingService(ITrainingService):
         filename = filename.replace("..", "").replace("/", "")
 
         return f"finetune-models/{user_id}/{resource_type}/{resource_id}/{filename}"
+
+
+# Global service instance
+training_service = TrainingService()

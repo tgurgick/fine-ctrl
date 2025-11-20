@@ -11,7 +11,7 @@ from backend.services.interfaces import ITaskService
 from backend.services.agent import agent_service
 from backend.models import Task
 from backend.schemas.task import TaskCreate, TaskUpdate
-from backend.validators.input_validator import sanitize_input
+from backend.utils.validation import sanitize_input
 
 logger = logging.getLogger(__name__)
 

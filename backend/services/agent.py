@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from backend.config import settings
 from backend.models import Task, TrainingExample
-from backend.validators.input_validator import sanitize_input, validate_prompt
+from backend.utils.validation import sanitize_input, validate_prompt
 
 logger = logging.getLogger(__name__)
 

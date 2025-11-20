@@ -231,3 +231,80 @@ class InputValidator:
 
 # Create singleton instance
 input_validator = InputValidator()
+
+
+# Convenience functions for backward compatibility
+def sanitize_input(value: Optional[str], max_length: int = 10000) -> Optional[str]:
+    """
+    Sanitize and validate user input.
+
+    Args:
+        value: Input string
+        max_length: Maximum allowed length
+
+    Returns:
+        Sanitized string
+
+    Raises:
+        HTTPException: If input is invalid
+    """
+    if value is None:
+        return None
+
+    # Sanitize
+    value = input_validator.sanitize_string(value, max_length)
+
+    # Check for attacks
+    input_validator.check_xss(value)
+    input_validator.check_sql_injection(value)
+
+    return value
+
+
+def validate_prompt(value: str) -> None:
+    """
+    Validate prompt input for AI services.
+
+    Checks for:
+    - Excessive length
+    - Prompt injection attempts
+    - XSS patterns
+
+    Args:
+        value: Prompt string
+
+    Raises:
+        HTTPException: If prompt is invalid
+    """
+    if not value or not value.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Prompt cannot be empty"
+        )
+
+    # Check length (reasonable limit for prompts)
+    if len(value) > 50000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Prompt too long (max 50000 characters)"
+        )
+
+    # Check for XSS
+    input_validator.check_xss(value)
+
+    # Check for common prompt injection patterns
+    injection_patterns = [
+        r"ignore\s+(all\s+)?previous\s+instructions",
+        r"system\s*:\s*you\s+are",
+        r"assistant\s*:\s*",
+        r"<\s*admin\s*>",
+        r"sudo\s+mode",
+    ]
+
+    value_lower = value.lower()
+    for pattern in injection_patterns:
+        if re.search(pattern, value_lower, re.IGNORECASE):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid input: potential prompt injection detected"
+            )

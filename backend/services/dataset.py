@@ -11,7 +11,7 @@ from backend.services.interfaces import IDatasetService
 from backend.services.agent import agent_service
 from backend.models import Dataset, TrainingExample, Task
 from backend.schemas.dataset import DatasetCreate, TrainingExampleCreate
-from backend.validators.input_validator import sanitize_input
+from backend.utils.validation import sanitize_input
 
 logger = logging.getLogger(__name__)
 

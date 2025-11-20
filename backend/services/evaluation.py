@@ -431,3 +431,7 @@ class EvaluationService:
         common_words = [word for word, count in word_counts.most_common(10)]
 
         return common_words
+
+
+# Global service instance
+evaluation_service = EvaluationService()
