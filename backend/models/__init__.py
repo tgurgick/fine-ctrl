@@ -7,6 +7,7 @@ from backend.models.training_job import TrainingJob
 from backend.models.model_version import ModelVersion
 from backend.models.deployment import Deployment
 from backend.models.api_key import APIKey
+from backend.models.feedback import Feedback
 
 __all__ = [
     # Mixins
@@ -22,4 +23,5 @@ __all__ = [
     "ModelVersion",
     "Deployment",
     "APIKey",
+    "Feedback",
 ]

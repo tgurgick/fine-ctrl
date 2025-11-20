@@ -34,6 +34,9 @@ class ModelVersion(Base, UUIDMixin, TimestampMixin, UserOwnedResource):
     deployments = relationship(
         "Deployment", back_populates="model_version", cascade="all, delete-orphan"
     )
+    feedback = relationship(
+        "Feedback", back_populates="model_version", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<ModelVersion(id={self.id}, version={self.version}, status={self.status})>"

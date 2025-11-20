@@ -56,6 +56,17 @@ from backend.schemas.api_key import (
     APIKeyResponse,
     APIKeyCreated,
 )
+from backend.schemas.evaluation import (
+    EvaluationRequest,
+    EvaluationMetrics,
+    EvaluationResult,
+    FeedbackCreate,
+    FeedbackResponse,
+    FeedbackSample,
+    FeedbackAnalysis,
+    SampleSelectionRequest,
+    SampleSelectionResponse,
+)
 
 __all__ = [
     # Auth
@@ -108,4 +119,14 @@ __all__ = [
     "APIKeyUpdate",
     "APIKeyResponse",
     "APIKeyCreated",
+    # Evaluation
+    "EvaluationRequest",
+    "EvaluationMetrics",
+    "EvaluationResult",
+    "FeedbackCreate",
+    "FeedbackResponse",
+    "FeedbackSample",
+    "FeedbackAnalysis",
+    "SampleSelectionRequest",
+    "SampleSelectionResponse",
 ]
