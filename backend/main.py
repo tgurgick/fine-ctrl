@@ -65,19 +65,18 @@ async def global_exception_handler(request, exc):
 
 
 # Import and include routers
-from backend.api.routes import auth, api_keys
-# Note: Other routers will be implemented in later work packages
-# from backend.api.routes import tasks, datasets, training, deployments
+from backend.api.routes import auth, api_keys, tasks, datasets, training, deployments, evaluation
 
 # WP-0.5: Authentication and API Key routes
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(api_keys.router, prefix="/api/v1/api-keys", tags=["api-keys"])
 
-# Future routers (to be implemented in later work packages)
-# app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
-# app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])
-# app.include_router(training.router, prefix="/api/v1/training", tags=["training"])
-# app.include_router(deployments.router, prefix="/api/v1/deployments", tags=["deployments"])
+# WP-2: Backend API routes
+app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
+app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])
+app.include_router(training.router, prefix="/api/v1/training", tags=["training"])
+app.include_router(deployments.router, prefix="/api/v1/deployments", tags=["deployments"])
+app.include_router(evaluation.router, prefix="/api/v1/evaluation", tags=["evaluation"])
 
 
 if __name__ == "__main__":
