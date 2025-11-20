@@ -1,15 +1,16 @@
-# SECURITY NOTE: These are default development credentials
-# DO NOT use these in production - use strong passwords and AWS Secrets Manager
+version: '3.8'
+
 services:
+  # PostgreSQL Database
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: finetune-postgres
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_DB: finetune
       POSTGRES_USER: finetune
-      POSTGRES_PASSWORD: finetune
+      POSTGRES_PASSWORD: finetune_dev_password
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,6 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis for caching and rate limiting
   redis:
     image: redis:7-alpine
     container_name: finetune-redis
@@ -28,25 +30,26 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 5
 
+  # MinIO for S3-compatible object storage (development)
   minio:
     image: minio/minio:latest
     container_name: finetune-minio
-    ports:
-      - "9000:9000"  # API
-      - "9001:9001"  # Console
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
     volumes:
       - minio_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
+      interval: 10s
+      timeout: 5s
       retries: 3
 
 volumes:

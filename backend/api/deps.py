@@ -9,12 +9,11 @@ from backend.database import get_db
 from backend.models import User
 from backend.services.auth import auth_service
 from backend.services.api_keys import api_key_service
-from backend.services.mock_services import (
-    task_service,
-    dataset_service,
-    training_service,
-    deployment_service,
-)
+from backend.services.task import task_service
+from backend.services.dataset import dataset_service
+from backend.services.training import training_service
+from backend.services.deployment import deployment_service
+from backend.services.evaluation import evaluation_service
 from backend.services.interfaces import (
     ITaskService,
     IDatasetService,

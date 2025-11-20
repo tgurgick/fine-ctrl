@@ -54,10 +54,12 @@ class Settings(BaseSettings):
 
     # Anthropic (optional for development)
     ANTHROPIC_API_KEY: Optional[str] = None
+    AGENT_MODEL: str = "claude-sonnet-4-20250514"
 
     # Modal (optional for development)
     MODAL_TOKEN_ID: Optional[str] = None
     MODAL_TOKEN_SECRET: Optional[str] = None
+    MODAL_INFERENCE_BASE_URL: Optional[str] = None
 
     # Logging
     LOG_LEVEL: str = "INFO"

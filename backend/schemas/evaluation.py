@@ -2,7 +2,7 @@
 from uuid import UUID
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # Evaluation Request/Response Schemas
@@ -10,7 +10,7 @@ class EvaluationRequest(BaseModel):
     """Request to evaluate a model."""
 
     model_version_id: UUID
-    test_dataset_id: UUID
+    test_dataset_id: Optional[UUID] = None  # If None, use holdout from training
 
 
 class EvaluationMetrics(BaseModel):
@@ -39,6 +39,20 @@ class EvaluationResult(BaseModel):
     )
 
 
+class EvaluationResponse(BaseModel):
+    """Evaluation results response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    model_version_id: UUID
+    test_dataset_id: Optional[UUID] = None
+    metrics: Dict[str, Any]  # Flexible to support different metric types
+    sample_predictions: Optional[List[Dict[str, Any]]] = None
+    created_at: datetime
+    completed_at: Optional[datetime] = None
+
+
 # Feedback Schemas
 class FeedbackCreate(BaseModel):
     """Create feedback on a model output."""
@@ -46,10 +60,11 @@ class FeedbackCreate(BaseModel):
     model_version_id: UUID
     example_input: str = Field(..., min_length=1)
     model_output: str = Field(..., min_length=1)
-    user_rating: str = Field(
-        ..., description="Rating: excellent, good, fair, or poor"
+    rating: str = Field(
+        ..., pattern="^(excellent|good|fair|poor|positive|negative|neutral)$",
+        description="Rating: excellent, good, fair, poor, positive, negative, or neutral"
     )
-    user_comment: Optional[str] = None
+    comment: Optional[str] = None
 
     class Config:
         json_schema_extra = {
@@ -57,8 +72,8 @@ class FeedbackCreate(BaseModel):
                 "model_version_id": "123e4567-e89b-12d3-a456-426614174000",
                 "example_input": "What is machine learning?",
                 "model_output": "Machine learning is a subset of AI...",
-                "user_rating": "excellent",
-                "user_comment": "Very comprehensive answer",
+                "rating": "excellent",
+                "comment": "Very comprehensive answer",
             }
         }
 
@@ -66,17 +81,16 @@ class FeedbackCreate(BaseModel):
 class FeedbackResponse(BaseModel):
     """Feedback response."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     model_version_id: UUID
     user_id: UUID
     example_input: str
     model_output: str
-    user_rating: str
-    user_comment: Optional[str]
+    rating: str
+    comment: Optional[str]
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class FeedbackSample(BaseModel):
@@ -94,20 +108,25 @@ class FeedbackAnalysis(BaseModel):
 
     total_feedback_count: int
     rating_distribution: Dict[str, int] = Field(
-        default_factory=dict, description="Count by rating (excellent, good, fair, poor)"
+        default_factory=dict, description="Count by rating"
     )
-    average_rating_score: float = Field(
-        ..., description="Numerical score: excellent=4, good=3, fair=2, poor=1"
+    positive_count: int = 0
+    negative_count: int = 0
+    neutral_count: int = 0
+    positive_percentage: float = 0.0
+    average_rating_score: Optional[float] = Field(
+        default=None, description="Numerical score: excellent=4, good=3, fair=2, poor=1"
     )
     common_issues: List[str] = Field(
         default_factory=list, description="Common patterns in negative feedback"
     )
-    strengths: List[str] = Field(
+    strengths: Optional[List[str]] = Field(
         default_factory=list, description="Common patterns in positive feedback"
     )
     feedback_by_category: Optional[Dict[str, Dict[str, Any]]] = Field(
         default=None, description="Feedback broken down by output category"
     )
+    sample_feedback: Optional[List[FeedbackResponse]] = None
 
 
 # Sample Selection Schemas
