@@ -64,6 +64,7 @@ async def init_db() -> None:
         model_version,
         deployment,
         api_key,
+        feedback,
     )
 
     Base.metadata.create_all(bind=engine)

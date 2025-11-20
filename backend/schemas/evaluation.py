@@ -1,75 +1,130 @@
 """Evaluation and feedback schemas."""
-from datetime import datetime
-from typing import Optional, Dict, Any, List
 from uuid import UUID
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Dict, Any
+from datetime import datetime
+from pydantic import BaseModel, Field
 
 
-class FeedbackBase(BaseModel):
-    """Base feedback schema."""
-
-    model_version_id: UUID
-    example_input: str = Field(..., min_length=1)
-    model_output: str = Field(..., min_length=1)
-    rating: str = Field(..., pattern="^(positive|negative|neutral)$")
-    comment: Optional[str] = None
-
-
-class FeedbackCreate(FeedbackBase):
-    """Feedback creation request."""
-
-    pass
-
-
-class FeedbackResponse(FeedbackBase):
-    """Feedback response."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    user_id: UUID
-    created_at: datetime
-
-
+# Evaluation Request/Response Schemas
 class EvaluationRequest(BaseModel):
     """Request to evaluate a model."""
 
     model_version_id: UUID
-    test_dataset_id: Optional[UUID] = None  # If None, use holdout from training
+    test_dataset_id: UUID
 
 
 class EvaluationMetrics(BaseModel):
-    """Evaluation metrics results."""
+    """Evaluation metrics for classification tasks."""
 
-    accuracy: Optional[float] = None
-    precision: Optional[float] = None
-    recall: Optional[float] = None
-    f1_score: Optional[float] = None
-    confusion_matrix: Optional[Dict[str, Any]] = None
-    per_category_metrics: Optional[Dict[str, Any]] = None
+    accuracy: float = Field(..., ge=0.0, le=1.0)
+    precision: float = Field(..., ge=0.0, le=1.0)
+    recall: float = Field(..., ge=0.0, le=1.0)
+    f1_score: float = Field(..., ge=0.0, le=1.0)
+    confusion_matrix: List[List[int]] = Field(..., description="Confusion matrix")
+    per_category_metrics: Dict[str, Dict[str, float]] = Field(
+        default_factory=dict, description="Per-category precision, recall, F1"
+    )
+    total_examples: int = Field(..., ge=0)
 
 
-class EvaluationResponse(BaseModel):
-    """Evaluation results response."""
+class EvaluationResult(BaseModel):
+    """Complete evaluation results."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_version_id: UUID
+    test_dataset_id: UUID
+    metrics: EvaluationMetrics
+    evaluated_at: datetime
+    sample_predictions: Optional[List[Dict[str, Any]]] = Field(
+        default=None, description="Sample predictions for review"
+    )
+
+
+# Feedback Schemas
+class FeedbackCreate(BaseModel):
+    """Create feedback on a model output."""
+
+    model_version_id: UUID
+    example_input: str = Field(..., min_length=1)
+    model_output: str = Field(..., min_length=1)
+    user_rating: str = Field(
+        ..., description="Rating: excellent, good, fair, or poor"
+    )
+    user_comment: Optional[str] = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "model_version_id": "123e4567-e89b-12d3-a456-426614174000",
+                "example_input": "What is machine learning?",
+                "model_output": "Machine learning is a subset of AI...",
+                "user_rating": "excellent",
+                "user_comment": "Very comprehensive answer",
+            }
+        }
+
+
+class FeedbackResponse(BaseModel):
+    """Feedback response."""
 
     id: UUID
     model_version_id: UUID
-    test_dataset_id: Optional[UUID] = None
-    metrics: EvaluationMetrics
-    sample_predictions: Optional[List[Dict[str, Any]]] = None
+    user_id: UUID
+    example_input: str
+    model_output: str
+    user_rating: str
+    user_comment: Optional[str]
     created_at: datetime
-    completed_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class FeedbackSample(BaseModel):
+    """A sample for collecting user feedback."""
+
+    example_input: str
+    model_output: str
+    ground_truth: Optional[str] = None
+    category: Optional[str] = None
+    confidence: Optional[float] = None
 
 
 class FeedbackAnalysis(BaseModel):
-    """Aggregated feedback analysis."""
+    """Analysis of feedback patterns."""
 
     total_feedback_count: int
-    positive_count: int
-    negative_count: int
-    neutral_count: int
-    positive_percentage: float
-    common_issues: Optional[List[str]] = None
-    sample_feedback: Optional[List[FeedbackResponse]] = None
+    rating_distribution: Dict[str, int] = Field(
+        default_factory=dict, description="Count by rating (excellent, good, fair, poor)"
+    )
+    average_rating_score: float = Field(
+        ..., description="Numerical score: excellent=4, good=3, fair=2, poor=1"
+    )
+    common_issues: List[str] = Field(
+        default_factory=list, description="Common patterns in negative feedback"
+    )
+    strengths: List[str] = Field(
+        default_factory=list, description="Common patterns in positive feedback"
+    )
+    feedback_by_category: Optional[Dict[str, Dict[str, Any]]] = Field(
+        default=None, description="Feedback broken down by output category"
+    )
+
+
+# Sample Selection Schemas
+class SampleSelectionRequest(BaseModel):
+    """Request to select diverse samples for feedback."""
+
+    model_version_id: UUID
+    count: int = Field(default=10, ge=1, le=100)
+    strategy: str = Field(
+        default="diverse",
+        description="Selection strategy: diverse, uncertain, balanced",
+    )
+
+
+class SampleSelectionResponse(BaseModel):
+    """Response with selected samples."""
+
+    model_version_id: UUID
+    samples: List[FeedbackSample]
+    selection_strategy: str
