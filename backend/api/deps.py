@@ -9,6 +9,18 @@ from backend.database import get_db
 from backend.models import User
 from backend.services.auth import auth_service
 from backend.services.api_keys import api_key_service
+from backend.services.mock_services import (
+    task_service,
+    dataset_service,
+    training_service,
+    deployment_service,
+)
+from backend.services.interfaces import (
+    ITaskService,
+    IDatasetService,
+    ITrainingService,
+    IDeploymentService,
+)
 
 # Security scheme for JWT bearer tokens
 security = HTTPBearer(auto_error=False)
@@ -128,3 +140,24 @@ def check_plan_limits(user: User, action: str) -> None:
 
     # Stub implementation
     pass
+
+
+# Service dependency injection
+def get_task_service() -> ITaskService:
+    """Get task service instance."""
+    return task_service
+
+
+def get_dataset_service() -> IDatasetService:
+    """Get dataset service instance."""
+    return dataset_service
+
+
+def get_training_service() -> ITrainingService:
+    """Get training service instance."""
+    return training_service
+
+
+def get_deployment_service() -> IDeploymentService:
+    """Get deployment service instance."""
+    return deployment_service
