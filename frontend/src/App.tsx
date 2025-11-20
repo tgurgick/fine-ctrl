@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ErrorBoundary, ToastProvider, Layout, ProtectedRoute } from './components';
 import {
   LoginPage,
+  SignupPage,
   TaskCreatePage,
   DataEditorPage,
   TrainingDashboardPage,
@@ -30,6 +31,7 @@ function App() {
               <Layout>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignupPage />} />
                   <Route
                     path="/tasks/new"
                     element={

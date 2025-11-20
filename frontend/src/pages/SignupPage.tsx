@@ -3,25 +3,38 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Input, Button, useToast } from '../components';
 
-export const LoginPage: React.FC = () => {
+export const SignupPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (password !== confirmPassword) {
+      showToast('Passwords do not match', 'error');
+      return;
+    }
+
+    if (password.length < 8) {
+      showToast('Password must be at least 8 characters', 'error');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      showToast('Welcome back!', 'success');
+      await register(email, password);
+      showToast('Account created successfully! Welcome!', 'success');
       navigate('/tasks');
     } catch (error: any) {
       showToast(
-        error.response?.data?.message || 'Invalid credentials. Please try again.',
+        error.response?.data?.message || 'Failed to create account. Please try again.',
         'error'
       );
     } finally {
@@ -49,14 +62,14 @@ export const LoginPage: React.FC = () => {
             Fine-Tune Platform
           </h1>
           <p className="text-neutral-600">
-            Train and deploy your custom models
+            Create your account and start training
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Signup Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-neutral-200/50 p-8 backdrop-blur-sm">
           <h2 className="text-xl font-semibold text-neutral-900 mb-6">
-            Sign in to your account
+            Create your account
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -79,8 +92,9 @@ export const LoginPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Create a strong password"
               required
+              helperText="At least 8 characters"
               leftIcon={
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -88,26 +102,30 @@ export const LoginPage: React.FC = () => {
               }
             />
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500" />
-                <span className="text-neutral-700">Remember me</span>
-              </label>
-              <Link to="/forgot-password" className="text-primary-600 hover:text-primary-700 font-medium">
-                Forgot password?
-              </Link>
-            </div>
+            <Input
+              label="Confirm password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter your password"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
 
             <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
-              Sign in
+              Create account
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-neutral-200">
             <p className="text-center text-sm text-neutral-600">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary-600 hover:text-primary-700 font-semibold">
-                Sign up for free
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
+                Sign in
               </Link>
             </p>
           </div>
@@ -115,7 +133,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Footer */}
         <p className="text-center text-xs text-neutral-500 mt-8">
-          By signing in, you agree to our Terms of Service and Privacy Policy
+          By creating an account, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>
     </div>

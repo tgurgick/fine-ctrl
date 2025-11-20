@@ -73,6 +73,18 @@ class APIClient {
     localStorage.removeItem('refreshToken');
   }
 
+  async register(email: string, password: string) {
+    const response = await this.client.post('/api/v1/auth/register', {
+      email,
+      password,
+    });
+
+    const { access_token, refresh_token } = response.data;
+    this.saveTokens(access_token, refresh_token);
+
+    return response.data;
+  }
+
   async login(email: string, password: string) {
     const response = await this.client.post('/api/v1/auth/login', {
       email,

@@ -12,6 +12,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -40,6 +41,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuth();
   }, []);
 
+  const register = async (email: string, password: string) => {
+    await apiClient.register(email, password);
+    // Fetch user profile after registration
+    const userData = await apiClient.get<User>('/api/v1/auth/me');
+    setUser(userData);
+  };
+
   const login = async (email: string, password: string) => {
     await apiClient.login(email, password);
     // Fetch user profile after login
@@ -59,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated: !!user,
         isLoading,
         login,
+        register,
         logout,
       }}
     >
