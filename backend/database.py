@@ -7,13 +7,21 @@ from typing import Generator
 from backend.config import settings
 
 # Create database engine
-engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,
-    pool_size=20,
-    max_overflow=0,
-    echo=settings.is_development,  # Log SQL in development
-)
+# SQLite doesn't support pool_size and max_overflow
+if settings.DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        echo=settings.is_development,  # Log SQL in development
+    )
+else:
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        pool_size=20,
+        max_overflow=0,
+        echo=settings.is_development,  # Log SQL in development
+    )
 
 # Create session factory
 SessionLocal = sessionmaker(
